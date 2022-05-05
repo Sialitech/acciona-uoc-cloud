@@ -10,16 +10,20 @@ class Obra:
         self.username = username
         self.password = password
         self.session = requests.session()
-        self.alarmas = {}
-        self.visualizaciones = {}
+        self.login()
 
-    def alarmas(self, seg=""):
+    def login(self):
+        url = "{}{}".format(self.url, '/login/?username={}&password={}'.format(
+            self.username, self.password))
+        self.session.get(url)
+
+    def get_alarmas(self, seg=""):
         url = "{}{}{}".format(self.url, '/api/alarmas/', seg)
-        self.alarmas = self.session.get(url).json()
+        return self.session.get(url).json()
     
-    def visualizaciones(self, interval=""):
+    def get_visualizaciones(self, interval=""):
         url = "{}{}{}".format(self.url, '/api/visualizaciones/', interval)
-        self.visualizaciones = self.session.get(url).json()
+        return self.session.get(url).json()
 
 
 class UOC:
@@ -28,15 +32,21 @@ class UOC:
         self.username = username
         self.password = password
         self.session = requests.session()
-        self.token = None
-        self.generate_token()
-        self.obras = {}
+        self.token = self.generate_token()
+        self.obras = self.get_obras()
 
     def generate_token(self):
         url = self.url + '/api-token-auth/'
         credentials = {'username': self.username, 'password': self.password}
         response = self.session.post(url, data=credentials)
-        self.token = response.json().get('token')
+        return response.json().get('token')
+
+    def get_obras(self):
+        headers = {'Authorization': 'Token {}'.format(self.token)}
+        obras = self.session.get(
+            self.url + '/obras/', headers=headers).json()
+        return obras
+    
 
 
 def off_alarmas(alarmas_totales, alarmas_activas):
@@ -56,11 +66,9 @@ def between_dates_js(date, interval):
 
 
 def main():
-    # OBRAS = {}
     DATE_INCREMENT_MIN = 5
 
     uoc = UOC('http://localhost:8000', 'admin', 'admin')
-    print("{}, {}".format(uoc.token, uoc.session))
     # session_ouc, obras = get_response(URL_UOC + '/obras/', session_ouc, token)
     # print(obras)
     # session, alarmas = get_alarmas(token, None, obras, 3000)
