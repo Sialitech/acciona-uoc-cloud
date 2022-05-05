@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 import requests
+import schedule
+import time
 
 
 class Obra:
@@ -34,6 +36,8 @@ class UOC:
         self.session = requests.session()
         self.token = self.generate_token()
         self.obras = self.get_obras()
+        self.alarmas = None
+        self.visualizaciones = None
 
     def generate_token(self):
         url = self.url + '/api-token-auth/'
@@ -47,6 +51,31 @@ class UOC:
             self.url + '/obras/', headers=headers).json()
         return obras
     
+    def exist_alarma(self, id_obra, type, timestamp):
+        headers = {'Authorization': 'Token {}'.format(self.token)}
+        url = '{}{}{}'.format(self.url, '/alarmas/', id_obra)
+        alarmas = self.session.get(url, headers=headers).json()
+        for alarma in alarmas:
+            if (
+                alarma['tipo']['nombre'] == type and
+                alarma['fecha_activacion'] == timestamp
+            ):
+                return True
+        return False
+
+    def exist_visualizacion(self, id_obra, type, value):
+        headers = {'Authorization': 'Token {}'.format(self.token)}
+        url = '{}{}'.format(self.url, '/visualizaciones/')
+        visualizaciones = self.session.get(url, headers=headers).json()
+        for visualizacion in visualizaciones:
+            if (
+                visualizacion['obra'] == id_obra and
+                visualizacion['tipo']['nombre'] == type and
+                visualizacion['valor'] == value
+            ):
+                return True
+        return False
+        
     def post_alarma(self, data):
         headers = {'Authorization': 'Token {}'.format(self.token)}
         response = self.session.post(
@@ -76,57 +105,70 @@ def between_dates_js(date, interval):
     return date_1, date_2
 
 
+def alarmas(uoc, credentials, seg):
+    alarmas = {}
+    for datos_obra in uoc.obras:
+        id_acciona = datos_obra['id_acciona']
+        localizacion = datos_obra['localizacion']
+        url = 'http://' + datos_obra['direccion']
+        username, password = credentials.get(id_acciona)
+        obra = Obra(id_acciona, localizacion,
+                    url, username, password)
+        for alarma in obra.get_alarmas(seg):
+            tipo = alarma['tipo']['tipo']
+            fecha = alarma['fecha_activacion']
+            exist = uoc.exist_alarma(
+                id_acciona, tipo, fecha)
+            if not(exist):
+                data = {
+                    "obra": id_acciona,
+                    "tipo": tipo,
+                    "fecha_activacion": fecha
+                }
+                result = uoc.post_alarma(data=data)
+                print(result)
+
+
+def visualizaciones(uoc, credentials, interval):
+    visualizaciones = {}
+    for datos_obra in uoc.obras:
+        id_acciona = datos_obra['id_acciona']
+        localizacion = datos_obra['localizacion']
+        url = 'http://' + datos_obra['direccion']
+        username, password = credentials.get(id_acciona)
+        obra = Obra(id_acciona, localizacion,
+                    url, username, password)
+        for visualizacion in obra.get_visualizaciones(interval):
+            tipo = visualizacion['tipo']['tipo']
+            valor = visualizacion['valor']
+            exist = uoc.exist_visualizacion(
+                id_acciona, tipo, valor)
+            if not(exist):
+                data = {
+                    "obra": id_acciona,
+                    "tipo": tipo,
+                    "valor": valor
+                }
+                result = uoc.post_alarma(data=data)
+                print(result)
+
+
 def main():
     CREDENTIALS = {
         'ES102': ['admin', 'admin']
     }
     SEG_ALARMAR = ''
     INTERVALO_VISUALIZACIONES = ''
-    DATE_INCREMENT_MIN = 5
 
     uoc = UOC('http://localhost:8000', 'admin', 'admin')
-    # print("{}, {}".format(uoc.token, uoc.obras))
+    schedule.every(10).seconds.do(alarmas, uoc, CREDENTIALS, SEG_ALARMAR)
+    schedule.every(5).seconds.do(
+        visualizaciones, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
+    # schedule.every().hour.do(alarmas, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
 
-    for datos_obra in uoc.obras:
-        url = 'http://' + datos_obra['direccion']
-        username, password = CREDENTIALS.get('ES102')
-        obra = Obra(datos_obra['id_acciona'], datos_obra['localizacion'],
-                    url, username, password)
-        alarmas = obra.get_alarmas(SEG_ALARMAR)
-        visualizaciones = obra.get_visualizaciones(INTERVALO_VISUALIZACIONES)
-        for alarma in alarmas:
-            data = {
-                "obra": datos_obra['id_acciona'],
-                "tipo": alarma['tipo']['tipo'],
-                "fecha_activacion": alarma['fecha_activacion']
-            }
-            result = uoc.post_alarma(data=data)
-            print(result)
-
-        for visualizacion in visualizaciones:
-            print(visualizacion)
-            data = {
-                "obra": datos_obra['id_acciona'],
-                "tipo": visualizacion['tipo']['tipo'],
-                "valor": visualizacion['valor']
-            }
-            result = uoc.post_visualizacion(data=data)
-            print(result)
-
-
-    
-    # session_ouc, obras = get_response(URL_UOC + '/obras/', session_ouc, token)
-    # print(obras)
-    # session, alarmas = get_alarmas(token, None, obras, 3000)
-    # print(alarmas)
-
-
-    # for key, value in alarmas.items():
-    #     post_request(URL_UOC + '/alarmas/', token, data=value)
-
-    # visualizaciones = get_visualizaciones(URL_UOC, token)
-    # for key, value in visualizaciones.items():
-    #     post_request(URL_UOC + '/visualizaciones/', token, data=value)
+    while 1:
+        schedule.run_pending()
+        time.sleep(1)
 
     # fecha_ini, fecha_fin = between_dates_js(datetime.now(), DATE_INCREMENT_MIN)
     # alarmas_activas = get_alarmas(URL_UOC, token, fecha_ini=fecha_ini, fecha_fin=fecha_fin)
