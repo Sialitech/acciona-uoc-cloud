@@ -22,7 +22,7 @@ class Obra:
     def get_alarmas(self, seg=""):
         url = "{}{}{}".format(self.url, '/api/alarmas/', seg)
         return self.session.get(url).json()
-    
+
     def get_visualizaciones(self, interval=""):
         url = "{}{}{}".format(self.url, '/api/visualizaciones/', interval)
         return self.session.get(url).json()
@@ -50,7 +50,7 @@ class UOC:
         obras = self.session.get(
             self.url + '/obras/', headers=headers).json()
         return obras
-    
+
     def exist_alarma(self, id_obra, type, timestamp):
         headers = {'Authorization': 'Token {}'.format(self.token)}
         url = '{}{}{}'.format(self.url, '/alarmas/', id_obra)
@@ -73,19 +73,26 @@ class UOC:
                 visualizacion['tipo']['nombre'] == type and
                 visualizacion['valor'] == value
             ):
-                return True
-        return False
-        
+                return visualizacion['id']
+
     def post_alarma(self, data):
         headers = {'Authorization': 'Token {}'.format(self.token)}
         response = self.session.post(
             self.url + '/alarmas/', headers=headers, data=data)
         return response.json()
 
-    def post_visualizacion(self, data):
+    def post_visualizacion(self, data, id=None):
         headers = {'Authorization': 'Token {}'.format(self.token)}
+        url = "{}/visualizaciones/".format(self.url)
         response = self.session.post(
-            self.url + '/visualizaciones/', headers=headers, data=data)
+            url, headers=headers, data=data)
+        return response.json()
+
+    def put_visualizacion(self, data, id):
+        headers = {'Authorization': 'Token {}'.format(self.token)}
+        url = "{}/visualizaciones/{}/".format(self.url, id)
+        response = self.session.put(
+            url, headers=headers, data=data)
         return response.json()
 
 
@@ -111,10 +118,12 @@ def alarmas(uoc, credentials, seg):
         id_acciona = datos_obra['id_acciona']
         localizacion = datos_obra['localizacion']
         url = 'http://' + datos_obra['direccion']
+        # print("url_alarm: ", url)
         username, password = credentials.get(id_acciona)
         obra = Obra(id_acciona, localizacion,
                     url, username, password)
         for alarma in obra.get_alarmas(seg):
+            # print("current_alarm: ", alarma)
             tipo = alarma['tipo']['tipo']
             fecha = alarma['fecha_activacion']
             exist = uoc.exist_alarma(
@@ -126,7 +135,7 @@ def alarmas(uoc, credentials, seg):
                     "fecha_activacion": fecha
                 }
                 result = uoc.post_alarma(data=data)
-                print(result)
+                print("guardado_alarm: ", result)
 
 
 def visualizaciones(uoc, credentials, interval):
@@ -135,22 +144,33 @@ def visualizaciones(uoc, credentials, interval):
         id_acciona = datos_obra['id_acciona']
         localizacion = datos_obra['localizacion']
         url = 'http://' + datos_obra['direccion']
+        # print("url_visual: ", url)
         username, password = credentials.get(id_acciona)
         obra = Obra(id_acciona, localizacion,
                     url, username, password)
         for visualizacion in obra.get_visualizaciones(interval):
+            # print("curret_visual: ", visualizacion)
             tipo = visualizacion['tipo']['tipo']
             valor = visualizacion['valor']
-            exist = uoc.exist_visualizacion(
+            id_visualizacion = uoc.exist_visualizacion(
                 id_acciona, tipo, valor)
-            if not(exist):
+            if id_visualizacion:
+                data = {
+                    "id": id_visualizacion,
+                    "obra": id_acciona,
+                    "tipo": tipo,
+                    "valor": valor
+                }
+                result = uoc.put_visualizacion(data=data, id=id_visualizacion)
+                print("update_visual: ", result)
+            else:
                 data = {
                     "obra": id_acciona,
                     "tipo": tipo,
                     "valor": valor
                 }
-                result = uoc.post_alarma(data=data)
-                print(result)
+                result = uoc.post_visualizacion(data=data)
+                print("guardado_visual: ", result)
 
 
 def main():
@@ -160,7 +180,7 @@ def main():
     SEG_ALARMAR = ''
     INTERVALO_VISUALIZACIONES = ''
 
-    uoc = UOC('http://localhost:8000', 'admin', 'admin')
+    uoc = UOC('http://localhost:80', 'admin', 'admin')
     schedule.every(10).seconds.do(alarmas, uoc, CREDENTIALS, SEG_ALARMAR)
     schedule.every(5).seconds.do(
         visualizaciones, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
