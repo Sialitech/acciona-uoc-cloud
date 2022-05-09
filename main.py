@@ -33,6 +33,7 @@ class UOC:
         self.url = url
         self.username = username
         self.password = password
+        self.headers = None
         self.session = requests.session()
         self.token = self.generate_token()
         self.obras = self.get_obras()
@@ -43,18 +44,33 @@ class UOC:
         url = self.url + '/api-token-auth/'
         credentials = {'username': self.username, 'password': self.password}
         response = self.session.post(url, data=credentials)
-        return response.json().get('token')
+        token = response.json().get('token')
+        self.headers = {'Authorization': 'Token {}'.format(token)}
+        return token
 
     def get_obras(self):
-        headers = {'Authorization': 'Token {}'.format(self.token)}
         obras = self.session.get(
-            self.url + '/obras/', headers=headers).json()
+            self.url + '/obras/', headers=self.headers).json()
         return obras
 
+    def get_alarmas(self):
+        alarmas = self.session.get(
+            self.url + '/alarmas/', headers=self.headers)
+        return alarmas.json(), alarmas.status_code
+
+    def post_alarma(self, data):
+        response = self.session.post(
+            self.url + '/alarmas/', headers=self.headers, data=data)
+        return response.json()
+
+    def delete_alarma(self, id_acciona, id_alarma):
+        url = self.url + '/alarmas/{}/{}/'.format(id_acciona, id_alarma)
+        response = self.session.delete(url, headers=self.headers)
+        return response
+
     def exist_alarma(self, id_obra, type, timestamp):
-        headers = {'Authorization': 'Token {}'.format(self.token)}
         url = '{}{}{}'.format(self.url, '/alarmas/', id_obra)
-        alarmas = self.session.get(url, headers=headers).json()
+        alarmas = self.session.get(url, headers=self.headers).json()
         for alarma in alarmas:
             if (
                 alarma['tipo']['nombre'] == type and
@@ -64,9 +80,8 @@ class UOC:
         return False
 
     def exist_visualizacion(self, id_obra, type, value):
-        headers = {'Authorization': 'Token {}'.format(self.token)}
         url = '{}{}'.format(self.url, '/visualizaciones/')
-        visualizaciones = self.session.get(url, headers=headers).json()
+        visualizaciones = self.session.get(url, headers=self.headers).json()
         for visualizacion in visualizaciones:
             if (
                 visualizacion['obra'] == id_obra and
@@ -75,24 +90,16 @@ class UOC:
             ):
                 return visualizacion['id']
 
-    def post_alarma(self, data):
-        headers = {'Authorization': 'Token {}'.format(self.token)}
-        response = self.session.post(
-            self.url + '/alarmas/', headers=headers, data=data)
-        return response.json()
-
     def post_visualizacion(self, data, id=None):
-        headers = {'Authorization': 'Token {}'.format(self.token)}
         url = "{}/visualizaciones/".format(self.url)
         response = self.session.post(
-            url, headers=headers, data=data)
+            url, headers=self.headers, data=data)
         return response.json()
 
     def put_visualizacion(self, data, id):
-        headers = {'Authorization': 'Token {}'.format(self.token)}
         url = "{}/visualizaciones/{}/".format(self.url, id)
         response = self.session.put(
-            url, headers=headers, data=data)
+            url, headers=self.headers, data=data)
         return response.json()
 
 
@@ -113,7 +120,6 @@ def between_dates_js(date, interval):
 
 
 def alarmas(uoc, credentials, seg):
-    alarmas = {}
     for datos_obra in uoc.obras:
         id_acciona = datos_obra['id_acciona']
         localizacion = datos_obra['localizacion']
@@ -139,7 +145,6 @@ def alarmas(uoc, credentials, seg):
 
 
 def visualizaciones(uoc, credentials, interval):
-    visualizaciones = {}
     for datos_obra in uoc.obras:
         id_acciona = datos_obra['id_acciona']
         localizacion = datos_obra['localizacion']
@@ -173,30 +178,41 @@ def visualizaciones(uoc, credentials, interval):
                 print("guardado_visual: ", result)
 
 
+def borrar_alarmas(uoc, seconds):
+    alarmas, status_code = uoc.get_alarmas()
+    print("status_code: ", status_code)
+    fecha_limite = datetime.now() - timedelta(seconds=seconds)
+    if status_code == 200:
+        for alarma in alarmas:
+            if(alarma['fecha_activacion'] < fecha_limite.timestamp()):
+                delete = uoc.delete_alarma(alarma['obra'], alarma['id'])
+                print("Borrando: {}, Status: {}".format(
+                    alarma, delete.status_code))
+                
+    else:
+        print("error:", alarmas)
+        
+
 def main():
     CREDENTIALS = {
         'ES102': ['admin', 'admin']
     }
-    SEG_ALARMAR = ''
+    SEG_ALARMAR = 10
     INTERVALO_VISUALIZACIONES = ''
+    BORRAR_ALARMAS = 300
 
     uoc = UOC('http://localhost:80', 'admin', 'admin')
     schedule.every(10).seconds.do(alarmas, uoc, CREDENTIALS, SEG_ALARMAR)
     schedule.every(5).seconds.do(
         visualizaciones, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
-    # schedule.every().hour.do(alarmas, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
+    # schedule.every().hour.do(
+    #     alarmas, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
+    schedule.every(5).minutes.do(borrar_alarmas, uoc, BORRAR_ALARMAS)
 
     while 1:
         schedule.run_pending()
         time.sleep(1)
 
-    # fecha_ini, fecha_fin = between_dates_js(datetime.now(), DATE_INCREMENT_MIN)
-    # alarmas_activas = get_alarmas(URL_UOC, token, fecha_ini=fecha_ini, fecha_fin=fecha_fin)
-
-    # alarmas_destivadas = off_alarmas(alarmas_totales, alarmas_activas)
-    # for id_alarma in alarmas_destivadas:
-    #     post_delete(URL_UOC + '/alarmas/', token, data=id_alarma):
-
 
 if __name__ == "__main__":
-   main()
+    main()
