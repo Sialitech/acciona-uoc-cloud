@@ -103,22 +103,6 @@ class UOC:
         return response.json()
 
 
-def off_alarmas(alarmas_totales, alarmas_activas):
-    for id_acciona, alarmas in alarmas_activas.items():
-        alarmas = alarmas_totales.get(id_acciona)
-    if alarmas:
-        for id_alarma in alarmas:
-            del alarmas[id_alarma]
-    return alarmas_totales
-
-
-def between_dates_js(date, interval):
-    date_increment = date + timedelta(minutes=interval)
-    date_1 = round(date.timestamp()*1000)
-    date_2 = round(date_increment.timestamp()*1000)
-    return date_1, date_2
-
-
 def alarmas(uoc, credentials, seg):
     for datos_obra in uoc.obras:
         id_acciona = datos_obra['id_acciona']
