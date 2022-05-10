@@ -28,5 +28,6 @@ Importante: hay que añadir a la variable de entorno PYTHONPATH la ruta de las l
     `PYTHONPATH=/home/pi/.local/lib/python3.8/site-packages`
 
 Nota: 
-    `mydir`: es el directorio donde tienes main.py, debes especificarlo
-    `cronjoblog`: es un archivo que se creara en tu directorio home, cuando haya algún error al ejecutar el programa por el crontab, revisalo si hay fallos en al ejecución.
+- `mydir`: es el directorio donde tienes main.py, debes especificarlo
+- `cronjoblog`: es un archivo que se creara en tu directorio home, cuando haya algún error al ejecutar el programa por el crontab, revisalo si hay fallos en al ejecución.
+- El ejemplo se ha hecho con la version 3.8 de python3.8, en función de tu version deberás modificarlo 
