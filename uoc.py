@@ -14,6 +14,11 @@ class UOC:
         self.visualizaciones = None
 
     def generate_token(self):
+        """Obtiene el token para tener credenciales
+
+        Returns:
+            str: token
+        """
         url = self.url + '/api-token-auth/'
         credentials = {'username': self.username, 'password': self.password}
         response = self.session.post(url, data=credentials)
@@ -42,6 +47,16 @@ class UOC:
         return response
 
     def exist_alarma(self, id_obra, type, timestamp):
+        """Comprueba si la alama especificada existe o no
+
+        Args:
+            id_obra (str): identificador de la obra
+            type (str): tipo de alarma
+            timestamp (timestamp): fecha en que se creo la alarma
+
+        Returns:
+            boolean: devuelve True si existe y False sino se encontro
+        """
         url = '{}{}{}'.format(self.url, '/alarmas/', id_obra)
         alarmas = self.session.get(url, headers=self.headers).json()
         for alarma in alarmas:
@@ -53,6 +68,15 @@ class UOC:
         return False
 
     def exist_visualizacion(self, id_obra, type):
+        """Comprueba si la visualizacion especificada existe o no
+
+        Args:
+            id_obra (str): identificador de la obra
+            type (str): tipo de la visualizacion
+
+        Returns:
+            list: si existe devuelve el id y el valor de la visualizacion
+        """
         url = '{}{}'.format(self.url, '/visualizaciones/')
         visualizaciones = self.session.get(url, headers=self.headers).json()
         for visualizacion in visualizaciones:

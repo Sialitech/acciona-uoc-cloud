@@ -16,10 +16,28 @@ class Obra:
             self.username, self.password))
         self.session.get(url)
 
-    def get_alarmas(self, seg=""):
-        url = "{}{}{}".format(self.url, '/api/alarmas/', seg)
+    def get_alarmas(self, seconds=""):
+        """Devuelve las alarmas
+
+        Args:
+            seconds (str, optional): si tiene valor, devuelve las alarmas que
+            llevan mas de X segundos
+
+        Returns:
+            list[dict]: lista de las alarmas
+        """
+        url = "{}{}{}".format(self.url, '/api/alarmas/', seconds)
         return self.session.get(url).json()
 
     def get_visualizaciones(self, interval=""):
+        """Devuelve las visualizaciones
+
+        Args:
+            interval (str, optional): si tiene valor, devuelve las
+            visualizaciones comprendidas entre horas, ejem: 10-14
+
+        Returns:
+            list[dict]: lista de visualizaciones
+        """
         url = "{}{}{}".format(self.url, '/api/visualizaciones/', interval)
         return self.session.get(url).json()
