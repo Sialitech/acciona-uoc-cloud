@@ -85,6 +85,7 @@ class UOC:
                 visualizacion['tipo']['nombre'] == type
             ):
                 return visualizacion['id'], visualizacion['valor']
+        return None, None
 
     def post_visualizacion(self, data, id=None):
         url = "{}/visualizaciones/".format(self.url)

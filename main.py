@@ -6,7 +6,7 @@ import time
 
 def main():
     CREDENTIALS = {
-        'ES102': ['admin', 'admin']
+        'C1070': ['admin', 'admin']
     }
     SEG_ALARMAR = 10
     INTERVALO_VISUALIZACIONES = '6-18'
