@@ -1,3 +1,4 @@
+from datetime import datetime
 from obra import Obra
 from datetime import datetime, timedelta
 
@@ -95,3 +96,26 @@ def borrar_alarmas(uoc, seconds):
                     alarma, delete.status_code))
     else:
         print("error:", alarmas)
+
+
+def intervalo_horas(horas):
+    """conseguir el intervalo de las visualizaciones dado el numero de horas.
+    Dicho intervalo será desde la hora actual hasta intervalo_horas menos.
+    Si son más de y media (ya han pasado más de 30 minutos de la hora actual),
+    se calcula el intervalo contando la próxima hora.
+    e.g. si son las 10:31 y invervalo_horas=2, entonces intervalo=9-11
+    e.g. si son las 10:29 y invervalo_horas=2, entonces intervalo=8-10
+
+    Args:
+        horas (int): numero de horas para calcular el intervalo.
+    Returns:
+        str: intervalo visualizaciones. e.g. "10-11", "14-17", "11-13", "5-9".
+    """
+    now = datetime.now()
+    if now.minute < 30:
+        hora_inicial = now.hour
+    else:
+        hora_inicial = now.hour + 1
+    intervalo = "{}-{}".format(hora_inicial - horas, hora_inicial)
+    return intervalo
+
