@@ -1,7 +1,7 @@
 from datetime import datetime
 from obra import Obra
 from datetime import datetime, timedelta
-
+import re
 
 def alarmas(uoc, credentials, seconds):
     """Busca en las obras alarmas y las añade en el uoc, si no existen.
@@ -119,3 +119,9 @@ def intervalo_horas(horas):
     intervalo = "{}-{}".format(hora_inicial - horas, hora_inicial)
     return intervalo
 
+
+def format_url(url):
+    if not re.match('(?:http)://', url):
+        return 'http://{}'.format(url)
+    return url
+    
