@@ -1,0 +1,4 @@
+- model: oasysDB.Tipos
+  pk: casco
+  fields:
+    tipo_dato: porcentaje

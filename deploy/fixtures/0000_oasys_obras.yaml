@@ -1,0 +1,4 @@
+- model: oasysDB.Obras
+  pk: C1070
+  fields:
+    nombre: Sevilla
