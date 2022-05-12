@@ -2,6 +2,14 @@ from datetime import datetime
 from obra import Obra
 from datetime import datetime, timedelta
 import re
+import logging
+
+
+logging.basicConfig(
+    format='%(asctime)-5s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+)
+
 
 def alarmas(uoc, credentials, seconds):
     """Busca en las obras alarmas y las añade en el uoc, si no existen.
@@ -32,18 +40,18 @@ def alarmas(uoc, credentials, seconds):
                     "fecha_activacion": fecha
                 }
                 result = uoc.post_alarma(data=data)
-                print("guardado_alarm: ", result)
+                logging.info("guardado_alarm: %s", result)
 
 
 def visualizaciones(uoc, credentials, interval):
     """Busca en las obras visualizaciones y las añade en el uoc, si no existen,
-    si existe acutaliza los datos.
+    si existe actualiza los datos.
 
     Args:
         uoc (UOC): instancia de la clase UOC.
         credentials (dic): diccionario con las credenciales para acceder a las
         obras.
-        interval (_type_): _description_
+        interval (str): intervalor para las visualizaciones. ejemplo: 9-14
     """
     for datos_obra in uoc.obras:
         id_acciona = datos_obra['id_acciona']
@@ -67,7 +75,7 @@ def visualizaciones(uoc, credentials, interval):
                     }
                     result = uoc.put_visualizacion(
                         data=data, id=id_visualizacion)
-                    print("update_visual: ", result)
+                    logging.info("update_visual: %s", result)
             else:
                 data = {
                     "obra": id_acciona,
@@ -75,7 +83,7 @@ def visualizaciones(uoc, credentials, interval):
                     "valor": valor
                 }
                 result = uoc.post_visualizacion(data=data)
-                print("guardado_visual: ", result)
+                logging.info("guardado_visual: %s", result)
 
 
 def borrar_alarmas(uoc, seconds):
@@ -92,10 +100,10 @@ def borrar_alarmas(uoc, seconds):
         for alarma in alarmas:
             if(alarma['fecha_activacion'] < fecha_limite.timestamp()):
                 delete = uoc.delete_alarma(alarma['obra'], alarma['id'])
-                print("Borrando: {}, Status: {}".format(
+                logging.info("Borrando: {}, Status: {}".format(
                     alarma, delete.status_code))
     else:
-        print("error:", alarmas)
+        logging.info("error: %s", alarmas)
 
 
 def intervalo_horas(horas):
@@ -103,8 +111,8 @@ def intervalo_horas(horas):
     Dicho intervalo será desde la hora actual hasta intervalo_horas menos.
     Si son más de y media (ya han pasado más de 30 minutos de la hora actual),
     se calcula el intervalo contando la próxima hora.
-    e.g. si son las 10:31 y invervalo_horas=2, entonces intervalo=9-11
-    e.g. si son las 10:29 y invervalo_horas=2, entonces intervalo=8-10
+    e.g. si son las 10:31 y intervalo_horas=2, entonces intervalo=9-11
+    e.g. si son las 10:29 y intervalo_horas=2, entonces intervalo=8-10
 
     Args:
         horas (int): numero de horas para calcular el intervalo.
@@ -124,4 +132,3 @@ def format_url(url):
     if not re.match('(?:http)://', url):
         return 'http://{}'.format(url)
     return url
-    
