@@ -7,7 +7,7 @@ ENV LANG=C.UTF-8
 ENV TZ="Europe/Madrid"
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
-COPY src ./src
-COPY cfg ./cfg
+COPY src/ /src
+COPY cfg/ /cfg
 COPY requirements.txt .
 RUN pip install -r requirements.txt

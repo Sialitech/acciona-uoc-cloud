@@ -1,6 +1,6 @@
 version: "2.3"
 
-services:  
+services:
   postgres:
     image: postgres
     logging:
@@ -21,44 +21,43 @@ services:
     restart: unless-stopped
   
   django:
-    image: siali/django-base:8
+    build:
+      context: .
     ports:
-      - 8000:8000
+      - 80:8000
     volumes: 
-      - ./deploy/fixtures:/app/fixtures/
+      - ./files/imgs:/app/media/
+      - ./oasysDB/migrations:/app/oasysDB/migrations/
+      - ./deploy/run.sh:/app/run.sh
       - ./deploy/modules.json:/app/django-base/modules/modules.json
       - ./dist/:/app/dist
-      - ~/.git-credentials:/etc/git-credentials
     environment:
       - INSTALL_MODULES=true
       - SAMPLE=false
       - LOG_LEVEL=error #option: debug ,info, warning, error and critical (django and gunicorn)
       - RUN_MODE=0 # 0 (runserver), 1 (gunicorn)
-    healthcheck:
-      test: curl --fail -s http://localhost:80/ || exit 1
-      interval: 5s
-      timeout: 10s
-      retries: 15
     depends_on: 
       postgres:
         condition: service_healthy
     command: sh -c "./run.sh"
     restart: unless-stopped
 
+
   uoc-cloud:
     build:
-      context: .
+      context: ./acciona-uoc-cloud/
     volumes: 
-      - ./cfg/:/cfg/
+      - ./acciona-uoc-cloud/cfg/:/cfg/
     environment:
       - URL_UOC=django
       - PORT_UOC=8000
-      - HORAS_VISUALIZACIONES=3
+      - HORAS_VISUALIZACIONES=1
     # depends_on: 
     #   django:
     #     condition: service_healthy
     command: sh -c "python3 src/main.py"
     restart: unless-stopped
-    
+
+ 
 volumes:
     osasys_postgres:
