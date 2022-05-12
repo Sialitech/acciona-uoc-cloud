@@ -16,8 +16,14 @@ Necesitas instalar schedule, puede ejecutar `pip3 install schedule` para instala
 
 
 ## Ejecución
-Normal: `python3.8 main.py`
-En background: `python3.8 main.py &``
+1. configurar bien las variables del docker-compose:
+```yaml
+- URL_UOC=django # url/ip donde está el servicio de django que contiene la API rest del UOC
+- PORT_UOC=8000 # puerto donde está el servicio de django que contiene la API rest del UOC
+- HORAS_VISUALIZACIONES=1 # ultimas horas de las que se quieren las visualizaciones. si es 1, se quieren visualizaciones de la última hora
+```
+2. Incluir el repo: [https://github.com/Sialitech/acciona-oasys-interface](https://github.com/Sialitech/acciona-oasys-interface). si se descarga aquí, poner bien la ruta al build del servicio django en el docker compose
+3. ejecutar `docker-compose up`
 
 
 ## Crontab
