@@ -8,8 +8,7 @@ from os import getenv
 
 def main():
     SEG_ALARMAR = 10
-    INTERVALO_VISUALIZACIONES = intervalo_horas(
-        int(getenv("HORAS_VISUALIZACIONES")))
+    HORAS = int(getenv("HORAS_VISUALIZACIONES"))
     BORRAR_ALARMAS = 300
 
     with open('../cfg/credentials.json') as json_file:
@@ -19,7 +18,7 @@ def main():
     uoc = UOC(URL_UOC, 'admin', 'admin')
     schedule.every(10).seconds.do(alarmas, uoc, CREDENTIALS, SEG_ALARMAR)
     schedule.every(5).seconds.do(
-        visualizaciones, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
+        visualizaciones, uoc, CREDENTIALS, HORAS)
     # schedule.every().hour.do(
     #     alarmas, uoc, CREDENTIALS, INTERVALO_VISUALIZACIONES)
     schedule.every(5).minutes.do(borrar_alarmas, uoc, BORRAR_ALARMAS)

@@ -43,7 +43,7 @@ def alarmas(uoc, credentials, seconds):
                 logging.info("guardado_alarm: %s", result)
 
 
-def visualizaciones(uoc, credentials, interval):
+def visualizaciones(uoc, credentials, horas):
     """Busca en las obras visualizaciones y las añade en el uoc, si no existen,
     si existe actualiza los datos.
 
@@ -53,6 +53,7 @@ def visualizaciones(uoc, credentials, interval):
         obras.
         interval (str): intervalor para las visualizaciones. ejemplo: 9-14
     """
+    interval = intervalo_horas(horas)
     for datos_obra in uoc.obras:
         id_acciona = datos_obra['id_acciona']
         localizacion = datos_obra['localizacion']
