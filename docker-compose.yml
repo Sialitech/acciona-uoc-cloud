@@ -36,8 +36,7 @@ services:
     restart: unless-stopped
   
   django:
-    build:
-      context: .
+    image: siali/acciona-oasys-interface:1
     ports:
       - 80:8000
     volumes: 
