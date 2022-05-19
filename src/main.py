@@ -8,7 +8,7 @@ import time
 
 
 def main():
-    time.sleep(12)
+    time.sleep(15)
     SEG_ALARMAR = 10
     HORAS = int(getenv("HORAS_VISUALIZACIONES"))
     BORRAR_ALARMAS = 300
