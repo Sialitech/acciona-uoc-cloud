@@ -1,4 +1,29 @@
 - model: oasysDB.Tipos
-  pk: casco
+  pk: Mascarilla
+  fields:
+    tipo_dato: porcentaje
+
+- model: oasysDB.Tipos
+  pk: Chaleco
+  fields:
+    tipo_dato: porcentaje
+
+- model: oasysDB.Tipos
+  pk: Casco
+  fields:
+    tipo_dato: porcentaje
+
+- model: oasysDB.Tipos
+  pk: Distancia
+  fields:
+    tipo_dato: porcentaje
+
+- model: oasysDB.Tipos
+  pk: Alarma
+  fields:
+    tipo_dato: porcentaje
+
+- model: oasysDB.Tipos
+  pk: Area_segura
   fields:
     tipo_dato: porcentaje
