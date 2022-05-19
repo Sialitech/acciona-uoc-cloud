@@ -4,14 +4,16 @@ from utils import (
 )
 import schedule, time, json
 from os import getenv
+import time
 
 
 def main():
+    time.sleep(12)
     SEG_ALARMAR = 10
     HORAS = int(getenv("HORAS_VISUALIZACIONES"))
     BORRAR_ALARMAS = 300
 
-    with open('../cfg/credentials.json') as json_file:
+    with open('/cfg/credentials.json') as json_file:
         CREDENTIALS = json.load(json_file)
     
     URL_UOC = "{}:{}".format(format_url(getenv("URL_UOC")), getenv("PORT_UOC"))
