@@ -1,6 +1,6 @@
 - model: oasysDB.Visualizaciones
   pk: 1
   fields:
-    obra: ES102
+    obra: C1070
     tipo: casco
     valor: 1
