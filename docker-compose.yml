@@ -41,10 +41,7 @@ services:
       - 80:8000
     volumes: 
       - ./files/imgs:/app/media/
-      - ./oasysDB/migrations:/app/oasysDB/migrations/
-      - ./deploy/run.sh:/app/run.sh
-      - ./deploy/modules.json:/app/django-base/modules/modules.json
-      - ./dist/:/app/dist
+      - ~/.git-credentials:/etc/git-credentials
     environment:
       - INSTALL_MODULES=true
       - SAMPLE=false
