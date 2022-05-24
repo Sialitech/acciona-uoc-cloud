@@ -1,7 +1,6 @@
 # acciona-uoc-cloud
 
-Permite sincronizar datos de las obras en el UOC, para ello se debe especificar en la tabla Obras del UOC las obras con su dirección (ip y puerto) para que se pude acceder a los datos. también hay que añadir al diccionario CREDENTIALS (en el main.py) las credenciales de las obras, con sl siguiente formato [ID_OBRA]: [[USUARIO], [PASSWORD]], ejem: 'ES102': ['admin', 'admin'].
-
+Permite sincronizar datos de las obras en el UOC, para ello se debe especificar en la tabla Obras del UOC las obras con su dirección (ip y puerto) para que se pude acceder a los datos, también hay que añadir al diccionario CREDENTIALS (en el main.py) las credenciales de las obras, con sl siguiente formato [ID_OBRA]: [[USUARIO], [PASSWORD]], ejem: 'ES102': ['admin', 'admin'].
 
 El programa realiza las siguientes funciones periódicas con schedule:
 
@@ -12,7 +11,11 @@ El programa realiza las siguientes funciones periódicas con schedule:
 
 ## Requisitos
 
-Necesitas instalar schedule, puede ejecutar `pip3 install schedule` para instalarlo
+- Necesitas instalar schedule, puede ejecutar `pip3 install schedule` para instalarlo
+
+- Tener al menos una obra en ejecución y añadir sus datos al UOC en la tabla obras. Ejemplo:
+
+![](files/imagenes/obras.png)
 
 
 ## Ejecución
@@ -37,3 +40,8 @@ Nota:
 - `mydir`: es el directorio donde tienes main.py, debes especificarlo
 - `cronjoblog`: es un archivo que se creara en tu directorio home, cuando haya algún error al ejecutar el programa por el crontab, revisalo si hay fallos en al ejecución.
 - El ejemplo se ha hecho con la version 3.8 de python3.8, en función de tu version deberás modificarlo 
+
+
+## Seguridad
+
+El UOC incluye una seguridad por token (rest_framework.authtoken) que se genera y se obtiene haciendo una petición post a http://[URL]/api-token-auth/ (se debe introducir el user y password). Las obras implementan credenciales user, password y token nativo de Django (sesiones)
