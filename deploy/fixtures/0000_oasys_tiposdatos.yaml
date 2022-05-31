@@ -1,0 +1,9 @@
+- model: oasysDB.TipoDatos
+  pk: porcentaje
+  fields:
+    nombre: porcentaje
+
+- model: oasysDB.TipoDatos
+  pk: número
+  fields:
+    nombre: número

@@ -1,0 +1,5 @@
+- model: oasysDB.Obras
+  pk: C1070
+  fields:
+    nombre: Sevilla
+    direccion: 40.113.110.23:8000
