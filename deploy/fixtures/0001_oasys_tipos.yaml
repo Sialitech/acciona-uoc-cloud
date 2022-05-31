@@ -1,29 +1,55 @@
 - model: oasysDB.Tipos
-  pk: Mascarilla
+  pk: mascarilla
   fields:
     tipo_dato: porcentaje
 
 - model: oasysDB.Tipos
-  pk: Chaleco
+  pk: chaleco
   fields:
     tipo_dato: porcentaje
 
 - model: oasysDB.Tipos
-  pk: Casco
+  pk: casco
   fields:
     tipo_dato: porcentaje
 
 - model: oasysDB.Tipos
-  pk: Distancia
+  pk: distancia social
   fields:
     tipo_dato: porcentaje
 
 - model: oasysDB.Tipos
-  pk: Alarma
+  pk: COVID
   fields:
-    tipo_dato: porcentaje
+    tipo_dato: número
 
 - model: oasysDB.Tipos
-  pk: Area_segura
+  pk: zona restringida
   fields:
-    tipo_dato: porcentaje
+    tipo_dato: número
+
+
+- model: oasysDB.Tipos
+  pk: gafas
+  fields:
+    tipo_dato: número
+
+- model: oasysDB.Tipos
+  pk: arnés
+  fields:
+    tipo_dato: número
+
+- model: oasysDB.Tipos
+  pk: protecciones colectivas
+  fields:
+    tipo_dato: número
+
+- model: oasysDB.Tipos
+  pk: próximo a maquinaria
+  fields:
+    tipo_dato: número
+
+- model: oasysDB.Tipos
+  pk: trabajadores por zona 
+  fields:
+    tipo_dato: número

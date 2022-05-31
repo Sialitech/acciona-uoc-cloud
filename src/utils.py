@@ -4,6 +4,21 @@ from datetime import datetime, timedelta
 import re
 import logging
 
+# Diccionario de mapeo:
+# como se llaman los eventos en nuestras obras ---> cómo se llaman para el UOC (lo que espera recibir el UOC)
+mapeado_tipos_uoc = {
+    "Casco": "casco",
+    "Mascarilla": "mascarilla",
+    "Chaleco": "chaleco",
+    "Area_segura": "zona restringida",
+    "Distancia": "distancia social",
+    "Alarma": "COVID",
+    "gafas": "gafas", # no implementado todavía
+    "arnes": "arnés", # no implementado todavía
+    "protecciones_colectivas": "protecciones colectivas", # no implementado todavía
+    "proximo_a_maquinaria": "próximo a maquinaria", # no implementado todavía
+    "trabajadores_por_zona": "trabajadores por zona" # no implementado todavía
+}
 
 logging.basicConfig(
     format='%(asctime)-5s %(levelname)-8s %(message)s',
@@ -29,7 +44,7 @@ def alarmas(uoc, credentials, seconds):
         obra = Obra(id_acciona, localizacion,
                     url, username, password)
         for alarma in obra.get_alarmas(seconds):
-            tipo = alarma['tipo']['tipo']
+            tipo = mapeado_tipos_uoc[alarma['tipo']['tipo']]
             fecha = alarma['fecha_activacion']
             exist = uoc.exist_alarma(
                 id_acciona, tipo, fecha)
@@ -62,7 +77,7 @@ def visualizaciones(uoc, credentials, horas):
         obra = Obra(id_acciona, localizacion,
                     url, username, password)
         for visualizacion in obra.get_visualizaciones(interval):
-            tipo = visualizacion['tipo']['tipo']
+            tipo = mapeado_tipos_uoc[visualizacion['tipo']['tipo']]
             valor = visualizacion['valor']
             id_visualizacion, valor_old = uoc.exist_visualizacion(
                 id_acciona, tipo)

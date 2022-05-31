@@ -11,9 +11,10 @@ services:
     environment:
       - URL_UOC=django
       - PORT_UOC=8000
+      # - PORT_UOC=8000
       - HORAS_VISUALIZACIONES=1
     restart: unless-stopped
-    command: sh -c "python3 /src/main.py"
+    command: sh -c "python3 src/main.py"
 
  
   postgres:
@@ -36,6 +37,7 @@ services:
     restart: unless-stopped
   
   django:
+    #    image: siali/acciona-oasys-interface:sin_token_1
     image: siali/acciona-oasys-interface:1
     ports:
       - 80:8000
