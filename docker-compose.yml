@@ -47,7 +47,8 @@ services:
       - ~/.git-credentials:/etc/git-credentials
     environment:
       - INSTALL_MODULES=true
-      - SAMPLE=false
+      - SAMPLE=true # cargar fixtures
+      # - SAMPLE=false #no cargar fixtures
       - LOG_LEVEL=error #option: debug ,info, warning, error and critical (django and gunicorn)
       - RUN_MODE=0 # 0 (runserver), 1 (gunicorn)
     depends_on: 
