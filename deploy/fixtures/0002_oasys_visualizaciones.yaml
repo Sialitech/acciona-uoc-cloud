@@ -1,6 +1,0 @@
-- model: oasysDB.Visualizaciones
-  pk: 1
-  fields:
-    obra: C1070
-    tipo: Casco
-    valor: 1
